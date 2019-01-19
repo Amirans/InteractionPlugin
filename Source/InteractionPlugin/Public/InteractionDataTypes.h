@@ -11,3 +11,11 @@ enum class EInteractionResult : uint8
 	IR_Failed,
 	IR_Interrupted
 };
+
+UENUM(BlueprintType)
+enum class EInteractionType : uint8
+{
+	IT_None,
+	IT_Instant,
+	IT_Hold
+};

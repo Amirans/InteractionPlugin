@@ -7,6 +7,7 @@
 UInteractionComponent_Instant::UInteractionComponent_Instant()
 {
 	PrimaryComponentTick.bCanEverTick = false;
+	InteractionType = EInteractionType::IT_Instant;
 }
 
 bool UInteractionComponent_Instant::StartInteraction(UInteractorComponent* InteractorComp)

@@ -4,6 +4,7 @@
 #include "Runtime/Engine/Classes/GameFramework/Actor.h"
 #include "UnrealNetwork.h"
 #include "InteractionComponents/InteractionComponent.h"
+#include "InteractionComponents/InteractionComponent_Hold.h"
 
 
 // Sets default values for this component's properties
@@ -52,20 +53,44 @@ void UInteractorComponent::TryStartInteraction()
 		return;
 	}
 
-	if (TryGetInteraction(InteractionCandidate))
+	/* Get Server Sided Interaction */
+	if (!TryGetInteraction(InteractionCandidate))
 	{
-		/* Start Interacting */
-		SetInteracting(true);
-		
-		InteractionCandidate->StartInteraction(this);
-
-		UE_LOG(LogInteractor, Log, TEXT("Interaction Initiation Requested"));
+		UE_LOG(LogInteractor, Warning, TEXT("Unable to Start Interaction Due to No Interaction Available On Server Side"));
+		return;
 	}
+
+	/* Start the Interaction */
+	StartInteraction();
 }
 
 void UInteractorComponent::Server_TryStartInteraction_Implementation()
 {
 	TryStartInteraction();
+}
+
+void UInteractorComponent::StartInteraction()
+{
+
+	SetInteracting(true);
+
+	const bool bStarted = InteractionCandidate->StartInteraction(this);
+	
+	/* If Failed to Start , Fail Initiation */
+	if (!bStarted)
+	{
+		SetInteracting(false);
+		return;
+	}
+
+	/* Start Interactor Timer If Interaction Type is Hold */
+	if (InteractionCandidate->GetInteractionType() == EInteractionType::IT_Hold)
+	{
+		UInteractionComponent_Hold* InteractionHold = Cast<UInteractionComponent_Hold>(InteractionCandidate);
+
+		StartInteractorTimer(IsValid(InteractionHold) ? InteractionHold->GetInteractionDuration() : 0.1f);
+	}
+
 }
 
 void UInteractorComponent::EndInteraction(EInteractionResult InteractionResult, UInteractionComponent* InteractionComponent)
@@ -100,6 +125,25 @@ void UInteractorComponent::EndInteraction(EInteractionResult InteractionResult, 
 	default:
 		break;
 	}
+}
+
+void UInteractorComponent::OnInteractorTimerCompleted()
+{
+	UE_LOG(LogInteractor, Log, TEXT("Interactor Timer Completed"));
+
+	UInteractionComponent_Hold* InteractionHold = Cast<UInteractionComponent_Hold>(InteractionCandidate);
+
+	/* Validate Interaction Hold Component Is Valid */
+	if (!IsValid(InteractionHold))
+	{
+		/* Fail Interaction to Prevent Deadlock */
+		EndInteraction(EInteractionResult::IR_Failed, nullptr);
+
+		UE_LOG(LogInteractor, Error, TEXT("Failed to Cast to Interaction Hold On %s"), *InteractionCandidate->GetName());
+		return;
+	}
+
+	InteractionHold->OnHoldCompleted(this);
 }
 
 void UInteractorComponent::OnRep_bInteracting()

@@ -10,7 +10,7 @@ DECLARE_LOG_CATEGORY_EXTERN(LogInteractor, Log, All);
 
 class UInteractionComponent;
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent), Abstract)
+UCLASS( ClassGroup=(Custom), Abstract)
 class INTERACTIONPLUGIN_API UInteractorComponentBase : public UActorComponent
 {
 	GENERATED_BODY()
@@ -79,6 +79,31 @@ public:
 		OutInteractionComponent = GetInteractionTrace();
 		return ValidateDirection(OutInteractionComponent);
 	}
+
+protected:
+
+	/**
+	 * Starts The Interactor Timer for a Given Duration
+	 * 
+	 * @param NewInteractionDuration - Duration to Start the Interactor Duration With
+	 */
+	UFUNCTION()
+		void StartInteractorTimer(float NewInteractionDuration);
+
+	/**
+	 * Function Invoked By Interactor Timer On Timer Ends
+	 */
+	UFUNCTION()
+		virtual void OnInteractorTimerCompleted();
+
+private:
+
+	/**
+	 * Timer to Handle Interaction Times
+	 */
+	UPROPERTY()
+		FTimerHandle InteractorTimer;
+
 
 	
 

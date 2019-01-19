@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/SceneComponent.h"
+#include "InteractionDataTypes.h"
 #include "InteractionComponent.generated.h"
 
 
@@ -14,7 +15,7 @@ DECLARE_LOG_CATEGORY_EXTERN(LogInteraction, Log, All);
 
 class UInteractorComponent;
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent), Abstract)
+UCLASS( ClassGroup=(Custom), Abstract)
 class INTERACTIONPLUGIN_API UInteractionComponent : public USceneComponent
 {
 	GENERATED_BODY()
@@ -59,10 +60,25 @@ public:
 	UFUNCTION()
 		void SetInteractionFocusState(bool bNewFocus);
 
+	/**
+	 * Getter For Interaction Component Interaction Type
+	 */
+	UFUNCTION(BlueprintGetter, Category = InteractionComponent)
+		EInteractionType GetInteractionType() const
+	{
+		return InteractionType;
+	}
+
 protected:
 
 	// Called when the game starts
 	virtual void BeginPlay() override;
+
+	/**
+	 * Interaction Component Interaction Type
+	 */
+	UPROPERTY(BlueprintGetter = GetInteractionType, Category = InteractionComponent)
+		EInteractionType InteractionType;
 
 	/**
 	 * Completes an Interaction With an Interactor

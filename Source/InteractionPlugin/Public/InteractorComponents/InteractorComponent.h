@@ -22,7 +22,10 @@ public:
 
 	virtual void GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const override;
 
-
+	/**
+	 * Tries to Start Interaction On Authority Side of the Interactor
+	 * Gets Interaction On Server Side to Start
+	 */
 	UFUNCTION(BlueprintCallable, Category = Interactor)
 		void TryStartInteraction();
 
@@ -53,6 +56,19 @@ protected:
 
 protected:
 
+
+	/**
+	 * Starts The Interaction With the Interaction Component
+	 * @note Should Not Be Called Directly, @see TryStartInteraction
+	 */
+	UFUNCTION()
+		void StartInteraction();
+
+	/**
+	 * Function Invoked By Interactor Timer On Timer Ends
+	 */
+		void OnInteractorTimerCompleted() override;
+
 	/**
 	 * On Rep To Notify of bInteracting Changes
 	 */
@@ -72,9 +88,14 @@ protected:
 			OnRep_bInteracting();
 		}
 	};
+
 	
+
 private:
 
+	/**
+	 * RPC to Server To Start the Interaction
+	 */
 	UFUNCTION(Server, Reliable, WithValidation)
 	void Server_TryStartInteraction();
 	bool Server_TryStartInteraction_Validate() { return true; };

@@ -5,14 +5,14 @@ The Goal of this plug-in is to handle the interaction between player and objects
 ## Road map / Features:
 1. Interaction Types
 	- Instant [DONE]
-	- Hold
+	- Hold [DONE]
 	- Toggle
 2. Condition Based Interaction
 	- Single Interaction
 	- Multiple Interaction
 	- Custom Defined Condition E.g Team Id
 3. Multiplayer/Network Support
-	- Interaction Process
+	- Interaction Process [DONE]
 	- Interaction States Replication
 	- Notifications for Animations
 4. Documentation

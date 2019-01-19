@@ -7,6 +7,7 @@ DEFINE_LOG_CATEGORY(LogInteraction);
 
 // Sets default values for this component's properties
 UInteractionComponent::UInteractionComponent()
+	:InteractionType(EInteractionType::IT_None)
 {
 
 }

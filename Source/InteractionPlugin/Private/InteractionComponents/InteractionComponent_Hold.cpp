@@ -8,6 +8,7 @@ UInteractionComponent_Hold::UInteractionComponent_Hold()
 	:InteractionDuration(10.0f)
 {
 	PrimaryComponentTick.bCanEverTick = false;
+	InteractionType = EInteractionType::IT_Hold;
 }
 
 bool UInteractionComponent_Hold::StartInteraction(UInteractorComponent* InteractorComp)

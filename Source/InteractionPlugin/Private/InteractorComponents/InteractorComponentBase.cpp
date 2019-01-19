@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "InteractorComponentBase.h"
-#include "Engine/World.h"
+#include "Runtime/Engine/Classes/Engine/World.h"
 #include "DrawDebugHelpers.h"
 
 DEFINE_LOG_CATEGORY(LogInteractor);
@@ -74,4 +74,24 @@ bool UInteractorComponentBase::ValidateDirection(const UInteractionComponent* In
 	float DirectionPoint = 0.0f;
 
 	return FVector::DotProduct(Direction, InteractionComponent->GetForwardVector()) > 0.5f;
+}
+
+void UInteractorComponentBase::StartInteractorTimer(float NewInteractionDuration)
+{
+	/* Get World */
+	const UWorld* World = GetWorld();
+
+	if (!IsValid(World))
+	{
+		UE_LOG(LogInteractor, Warning, TEXT("Unable to Start Hold Interaction Due to Null World"));
+		return;
+	}
+
+	/* Start The Timer */
+	World->GetTimerManager().SetTimer(InteractorTimer, this, &UInteractorComponentBase::OnInteractorTimerCompleted,NewInteractionDuration);
+}
+
+void UInteractorComponentBase::OnInteractorTimerCompleted()
+{
+	//Invoked By Interactor Timer On Timer Completed 
 }
