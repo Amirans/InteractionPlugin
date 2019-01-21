@@ -5,20 +5,16 @@
 
 DEFINE_LOG_CATEGORY(LogInteraction);
 
-// Sets default values for this component's properties
 UInteractionComponent::UInteractionComponent()
 	:InteractionType(EInteractionType::IT_None)
+	,bMultipleInteraction(true)
 {
 
 }
 
-// Called when the game starts
 void UInteractionComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
-	// ...
-
 }
 
 void UInteractionComponent::SetInteractionFocusState(bool bNewFocus)
@@ -55,7 +51,7 @@ bool UInteractionComponent::StopInteraction(UInteractorComponent* InteractorComp
 
 bool UInteractionComponent::CanInteractWith(UInteractorComponent* InteractoComp)
 {
-	return false;
+	return true;
 }
 
 void UInteractionComponent::CompleteInteraction(EInteractionResult InteractionResult, UInteractorComponent* InteractorComp)

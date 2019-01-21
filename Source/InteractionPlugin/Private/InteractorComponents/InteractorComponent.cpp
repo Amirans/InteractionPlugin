@@ -55,7 +55,10 @@ void UInteractorComponent::TryStartInteraction()
 	}
 
 	/* Start the Interaction */
-	StartInteraction();
+	if (InteractionCandidate->CanInteractWith(this))
+	{
+		StartInteraction();
+	}
 }
 
 void UInteractorComponent::Server_TryStartInteraction_Implementation()
@@ -87,11 +90,11 @@ void UInteractorComponent::StartInteraction()
 
 }
 
-void UInteractorComponent::TryCancelInteraction()
+void UInteractorComponent::TryStopInteraction()
 {
 	if (GetInteractorRole() != ROLE_Authority)
 	{
-		Server_TryStartInteraction();
+		Server_TryStopInteraction();
 		return;
 	}
 
@@ -105,9 +108,9 @@ void UInteractorComponent::TryCancelInteraction()
 	InteractionCandidate->StopInteraction(this);
 }
 
-void UInteractorComponent::Server_TryCancelInteraction_Implementation()
+void UInteractorComponent::Server_TryStopInteraction_Implementation()
 {
-	TryCancelInteraction();
+	TryStopInteraction();
 }
 
 void UInteractorComponent::EndInteraction(EInteractionResult InteractionResult, UInteractionComponent* InteractionComponent)
@@ -173,11 +176,7 @@ void UInteractorComponent::OnRep_bInteracting()
 void UInteractorComponent::RegisterNewInteraction(UInteractionComponent* NewInteraction)
 {
 
-	if (GetInteractorRole() == ROLE_Authority)
-	{
-
-	}
-	else
+	if (GetInteractorRole() != ROLE_Authority)
 	{
 		/* Notify Interaction Of In Focus Status*/
 		if (IsValid(InteractionCandidate))

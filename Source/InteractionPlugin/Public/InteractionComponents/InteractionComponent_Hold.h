@@ -41,6 +41,11 @@ public:
 	bool StopInteraction(UInteractorComponent* InteractorComp) override;
 	
 	/**
+	 * [Overridden] Validates Condition and Returns Whether Interaction is Allowed
+	 */
+	bool CanInteractWith(UInteractorComponent* InteractoComp) override;
+
+	/**
 	 * Getter for the Interaction Duration
 	 */
 	UFUNCTION(BlueprintGetter, Category = InteractionConfig)
@@ -61,7 +66,7 @@ public:
 protected:
 
 	/** Duration Required for the Interaction to be Completed */
-	UPROPERTY(EditDefaultsOnly, Category = InteractionConfig, BlueprintGetter = GetInteractionDuration, BlueprintSetter = SetInteractionDuration,meta = (ClampMin = 0.0f))
+	UPROPERTY(EditAnywhere, Category = "InteractionComponent|Config", BlueprintGetter = GetInteractionDuration, BlueprintSetter = SetInteractionDuration,meta = (ClampMin = 0.0f))
 		float InteractionDuration;
 
 private:

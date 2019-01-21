@@ -57,6 +57,11 @@ bool UInteractionComponent_Hold::StopInteraction(UInteractorComponent* Interacto
 	return true;
 }
 
+bool UInteractionComponent_Hold::CanInteractWith(UInteractorComponent* InteractoComp)
+{
+	return bMultipleInteraction || Interactors.Num() == 0;
+}
+
 bool UInteractionComponent_Hold::IsInteractionTimeOver(const UInteractorComponent* InteractorComponent) const
 {
 	if (Interactors.Contains(InteractorComponent))

@@ -8,8 +8,8 @@ The Goal of this plug-in is to handle the interaction between player and objects
 	- Hold [DONE]
 	- Toggle
 2. Condition Based Interaction
-	- Single Interaction
-	- Multiple Interaction
+	- Single Interaction [DONE]
+	- Multiple Interaction [DONE]
 	- Custom Defined Condition E.g Team Id
 3. Multiplayer/Network Support
 	- Interaction Process [DONE]

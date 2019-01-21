@@ -81,6 +81,13 @@ protected:
 		EInteractionType InteractionType;
 
 	/**
+	 * [Config] Boolean to Allow Multiple Interaction at Once
+	 * @note Does Not Apply to Instant Interaction
+	 */
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "InteractionComponent|Config", meta=(DisplayName="Allow Multiple Interaction"))
+		bool bMultipleInteraction;
+
+	/**
 	 * Completes an Interaction With an Interactor
 	 *
 	 * @note Must be the End Point For All the Interaction Completions

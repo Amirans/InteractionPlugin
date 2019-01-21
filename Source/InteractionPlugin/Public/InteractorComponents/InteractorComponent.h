@@ -29,10 +29,10 @@ public:
 		void TryStartInteraction();
 
 	/**
-	 * Tries to Cancel an Interaction on Authority Side of the INteraction
+	 * Tries to Stop an Interaction on Authority Side of the Interaction
 	 */
 	UFUNCTION(BlueprintCallable, Category = Interactor)
-		void TryCancelInteraction();
+		void TryStopInteraction();
 
 	/**
 	* Ends the Interaction with Result
@@ -100,11 +100,11 @@ private:
 		bool Server_TryStartInteraction_Validate() { return true; };
 
 	/**
-	* RPC to Server To Cancel the Interaction
+	* RPC to Server To Stop the Interaction
 	*/
 	UFUNCTION(Server, Reliable, WithValidation)
-		void Server_TryCancelInteraction();
-		bool Server_TryCancelInteraction_Validate() { return true; };
+		void Server_TryStopInteraction();
+		bool Server_TryStopInteraction_Validate() { return true; };
 	
 	/**
 	 * Invoked When a New Interaction Component is Valid Candidate
