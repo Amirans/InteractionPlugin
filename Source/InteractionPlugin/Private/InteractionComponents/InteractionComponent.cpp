@@ -58,12 +58,12 @@ bool UInteractionComponent::CanInteractWith(UInteractorComponent* InteractoComp)
 	return false;
 }
 
-void UInteractionComponent::CompleteInteraction(bool bSuccessful, UInteractorComponent* InteractorComp)
+void UInteractionComponent::CompleteInteraction(EInteractionResult InteractionResult, UInteractorComponent* InteractorComp)
 {
 	/* Validate Interactor Comp */
 	if (IsValid(InteractorComp))
 	{
 		/* Invoke Interactor End Interaction */
-		InteractorComp->EndInteraction(EInteractionResult::IR_Successful, this);
+		InteractorComp->EndInteraction(InteractionResult, this);
 	}
 }

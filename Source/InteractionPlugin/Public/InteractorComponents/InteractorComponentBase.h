@@ -4,9 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "InteractionDataTypes.h"
 #include "InteractorComponentBase.generated.h"
 
+
 DECLARE_LOG_CATEGORY_EXTERN(LogInteractor, Log, All);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnInteractionUpdated, EInteractionResult, InteractionResult, EInteractionType, InteractionType, AActor*, InteractionActor);
 
 class UInteractionComponent;
 
@@ -20,6 +24,12 @@ public:
 	// Sets default values for this component's properties
 	UInteractorComponentBase();
 
+
+	/**
+	 * Delegate to Notify Interaction Changes
+	 */
+	UPROPERTY(BlueprintAssignable)
+		FOnInteractionUpdated OnInteractionUpdated;
 
 	/**
 	 * Traces From the Eye Point of View
@@ -82,19 +92,53 @@ public:
 
 protected:
 
+
+	/**
+	* Currently Interacting Interaction Component
+	*/
+	UPROPERTY(BlueprintReadOnly)
+		UInteractionComponent* InteractionCandidate;
+
 	/**
 	 * Starts The Interactor Timer for a Given Duration
 	 * 
 	 * @param NewInteractionDuration - Duration to Start the Interactor Duration With
 	 */
 	UFUNCTION()
-		void StartInteractorTimer(float NewInteractionDuration);
+		void ToggleInteractorTimer(bool bStartTImer = true, float NewInteractionDuration = 0.1f);
 
 	/**
 	 * Function Invoked By Interactor Timer On Timer Ends
 	 */
 	UFUNCTION()
 		virtual void OnInteractorTimerCompleted();
+
+	/**
+	 * Handles Interaction Notification Based on Config
+	 *
+	 * @param InteractionResult - Result of the Interaction
+	 * @param InteractionType - Type of Interaction
+	 */
+	UFUNCTION()
+		void NotifyInteraction(EInteractionResult InteractionResult, EInteractionType InteractionType);
+
+	/**
+	 * Owner Only Interaction State Notification
+	 * 
+	 * @param InteractionResult - Result of the Interaction
+	 * @param InteractionType - Type of Interaction
+	 */
+	UFUNCTION(Client, Reliable)
+		void Client_NotifyInteraction(EInteractionResult InteractionResult, EInteractionType InteractionType);
+
+	/**
+	 * Multi Cast Call to all Clients Notifying Interaction State
+	 *
+	 * @param InteractionResult - Result of the Interaction
+	 * @param InteractionType - Type of Interaction
+	 */
+	UFUNCTION(NetMulticast, Reliable)
+		void Multi_NotifyInteraction(EInteractionResult InteractionResult, EInteractionType InteractionType);
 
 private:
 

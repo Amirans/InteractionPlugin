@@ -7,6 +7,7 @@ UENUM(BlueprintType)
 enum class EInteractionResult : uint8
 {
 	IR_None,
+	IR_Started,
 	IR_Successful,
 	IR_Failed,
 	IR_Interrupted

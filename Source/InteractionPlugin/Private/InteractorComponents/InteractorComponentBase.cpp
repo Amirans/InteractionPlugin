@@ -2,6 +2,7 @@
 
 #include "InteractorComponentBase.h"
 #include "Runtime/Engine/Classes/Engine/World.h"
+#include "InteractionComponents/InteractionComponent.h"
 #include "DrawDebugHelpers.h"
 
 DEFINE_LOG_CATEGORY(LogInteractor);
@@ -9,6 +10,7 @@ DEFINE_LOG_CATEGORY(LogInteractor);
 UInteractorComponentBase::UInteractorComponentBase()
 {
 	PrimaryComponentTick.bCanEverTick = true;
+	this->SetIsReplicated(true);
 }
 
 UInteractionComponent* UInteractorComponentBase::GetInteractionTrace()
@@ -76,22 +78,61 @@ bool UInteractorComponentBase::ValidateDirection(const UInteractionComponent* In
 	return FVector::DotProduct(Direction, InteractionComponent->GetForwardVector()) > 0.5f;
 }
 
-void UInteractorComponentBase::StartInteractorTimer(float NewInteractionDuration)
+void UInteractorComponentBase::ToggleInteractorTimer(bool bStartTImer /*= true*/, float NewInteractionDuration /*= 0.1f*/)
 {
 	/* Get World */
 	const UWorld* World = GetWorld();
 
 	if (!IsValid(World))
 	{
-		UE_LOG(LogInteractor, Warning, TEXT("Unable to Start Hold Interaction Due to Null World"));
+		UE_LOG(LogInteractor, Warning, TEXT("Unable to Toggle Hold Interaction Due to Null World"));
 		return;
 	}
 
-	/* Start The Timer */
-	World->GetTimerManager().SetTimer(InteractorTimer, this, &UInteractorComponentBase::OnInteractorTimerCompleted,NewInteractionDuration);
+	if (bStartTImer)
+	{
+		/* Start The Timer */
+		World->GetTimerManager().SetTimer(InteractorTimer, this, &UInteractorComponentBase::OnInteractorTimerCompleted, NewInteractionDuration);
+	}
+	else
+	{
+		/* Clear The Timer */
+		World->GetTimerManager().ClearTimer(InteractorTimer);
+	}
+	
 }
 
 void UInteractorComponentBase::OnInteractorTimerCompleted()
 {
 	//Invoked By Interactor Timer On Timer Completed 
+}
+
+void UInteractorComponentBase::NotifyInteraction(EInteractionResult InteractionResult, EInteractionType InteractionType)
+{
+	//TODO: Implement Config and Multicast Call
+	Client_NotifyInteraction(InteractionResult, InteractionType);
+}
+
+void UInteractorComponentBase::Client_NotifyInteraction_Implementation(EInteractionResult InteractionResult, EInteractionType InteractionType)
+{
+	if (OnInteractionUpdated.IsBound())
+	{
+		OnInteractionUpdated.Broadcast(
+			InteractionResult, 
+			InteractionType, 
+			IsValid(InteractionCandidate) ? InteractionCandidate->GetOwner() : nullptr
+		);
+	}
+}
+
+void UInteractorComponentBase::Multi_NotifyInteraction_Implementation(EInteractionResult InteractionResult, EInteractionType InteractionType)
+{
+	if (OnInteractionUpdated.IsBound())
+	{
+		OnInteractionUpdated.Broadcast(
+			InteractionResult,
+			InteractionType,
+			IsValid(InteractionCandidate) ? InteractionCandidate->GetOwner() : nullptr
+		);
+	}
 }

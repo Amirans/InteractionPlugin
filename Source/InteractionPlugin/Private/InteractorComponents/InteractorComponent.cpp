@@ -7,16 +7,10 @@
 #include "InteractionComponents/InteractionComponent_Hold.h"
 
 
-// Sets default values for this component's properties
 UInteractorComponent::UInteractorComponent()
 	:bInteracting(false)
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-	this->SetIsReplicated(true);
-
-	// ...
 }
 
 void UInteractorComponent::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const
@@ -88,9 +82,32 @@ void UInteractorComponent::StartInteraction()
 	{
 		UInteractionComponent_Hold* InteractionHold = Cast<UInteractionComponent_Hold>(InteractionCandidate);
 
-		StartInteractorTimer(IsValid(InteractionHold) ? InteractionHold->GetInteractionDuration() : 0.1f);
+		ToggleInteractorTimer(true,IsValid(InteractionHold) ? InteractionHold->GetInteractionDuration() : 0.1f);
 	}
 
+}
+
+void UInteractorComponent::TryCancelInteraction()
+{
+	if (GetInteractorRole() != ROLE_Authority)
+	{
+		Server_TryStartInteraction();
+		return;
+	}
+
+	/* Return/Exit If No Interaction in Progress */
+	if (!bInteracting  || !IsValid(InteractionCandidate))
+	{
+		return;
+	}
+
+	/* Cancel Interaction */
+	InteractionCandidate->StopInteraction(this);
+}
+
+void UInteractorComponent::Server_TryCancelInteraction_Implementation()
+{
+	TryCancelInteraction();
 }
 
 void UInteractorComponent::EndInteraction(EInteractionResult InteractionResult, UInteractionComponent* InteractionComponent)
@@ -121,6 +138,8 @@ void UInteractorComponent::EndInteraction(EInteractionResult InteractionResult, 
 		UE_LOG(LogTemp, Warning, TEXT("Interaction Failed"));
 		break;
 	case EInteractionResult::IR_Interrupted:
+		ToggleInteractorTimer(false);
+		UE_LOG(LogTemp, Warning, TEXT("Interaction Interrupted"));
 		break;
 	default:
 		break;

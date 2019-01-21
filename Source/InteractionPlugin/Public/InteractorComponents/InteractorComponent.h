@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "InteractorComponents/InteractorComponentBase.h"
-#include "InteractionDataTypes.h"
 #include "InteractorComponent.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnNewInteraction, const UInteractionComponent*, NewInteraction);
@@ -30,6 +29,12 @@ public:
 		void TryStartInteraction();
 
 	/**
+	 * Tries to Cancel an Interaction on Authority Side of the INteraction
+	 */
+	UFUNCTION(BlueprintCallable, Category = Interactor)
+		void TryCancelInteraction();
+
+	/**
 	* Ends the Interaction with Result
 	*
 	* @param InteractionResult - Result of the Interaction Process
@@ -41,12 +46,6 @@ protected:
 
 	// Called when the game starts
 	virtual void BeginPlay() override;
-
-	/**
-	 * Currently Interacting Interaction Component
-	 */
-	UPROPERTY(BlueprintReadOnly)
-	UInteractionComponent* InteractionCandidate;
 
 	/**
 	 * Boolean to Determine Whether the Interactor is Interacting or Not
@@ -97,8 +96,15 @@ private:
 	 * RPC to Server To Start the Interaction
 	 */
 	UFUNCTION(Server, Reliable, WithValidation)
-	void Server_TryStartInteraction();
-	bool Server_TryStartInteraction_Validate() { return true; };
+		void Server_TryStartInteraction();
+		bool Server_TryStartInteraction_Validate() { return true; };
+
+	/**
+	* RPC to Server To Cancel the Interaction
+	*/
+	UFUNCTION(Server, Reliable, WithValidation)
+		void Server_TryCancelInteraction();
+		bool Server_TryCancelInteraction_Validate() { return true; };
 	
 	/**
 	 * Invoked When a New Interaction Component is Valid Candidate

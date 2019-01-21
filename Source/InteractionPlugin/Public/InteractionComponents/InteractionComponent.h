@@ -83,8 +83,10 @@ protected:
 	/**
 	 * Completes an Interaction With an Interactor
 	 *
-	 * Must be the End Point For All the Interaction Completions
+	 * @note Must be the End Point For All the Interaction Completions
+	 * @param InteractionResult - Result of Interaction
+	 * @param InteractorComp - Interactor Component to Notify
 	 */
 	UFUNCTION()
-		virtual void CompleteInteraction(bool bSuccessful, UInteractorComponent* InteractorComp);	
+		virtual void CompleteInteraction(EInteractionResult InteractionResult, UInteractorComponent* InteractorComp);
 };

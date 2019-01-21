@@ -19,7 +19,7 @@ bool UInteractionComponent_Instant::StartInteraction(UInteractorComponent* Inter
 	}
 
 	/* Complete the Interaction Immediately*/
-	CompleteInteraction(true,InteractorComp);
+	CompleteInteraction(EInteractionResult::IR_Successful,InteractorComp);
 
 	return true;
 }

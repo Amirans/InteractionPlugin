@@ -33,7 +33,7 @@ void UInteractionComponent_Hold::OnHoldCompleted(UInteractorComponent* Interacto
 		Interactors.Remove(InteractorComp);
 
 		/* Complete the Interaction */
-		CompleteInteraction(true, InteractorComp);
+		CompleteInteraction(EInteractionResult::IR_Successful, InteractorComp);
 	}
 }
 
@@ -48,7 +48,7 @@ bool UInteractionComponent_Hold::StopInteraction(UInteractorComponent* Interacto
 	/* Notify Interactor of Interaction Interruption */
 	if (Interactors.Contains(InteractorComp))
 	{
-		InteractorComp->EndInteraction(EInteractionResult::IR_Interrupted, this);
+		CompleteInteraction(EInteractionResult::IR_Interrupted, InteractorComp);
 	}
 
 	/* Remove the Interactor from List */
