@@ -5,6 +5,7 @@
 #include "UnrealNetwork.h"
 #include "InteractionComponents/InteractionComponent.h"
 #include "InteractionComponents/InteractionComponent_Hold.h"
+#include "Interface/InteractionInterface.h"
 
 
 UInteractorComponent::UInteractorComponent()
@@ -55,7 +56,8 @@ void UInteractorComponent::TryStartInteraction()
 	}
 
 	/* Start the Interaction */
-	if (InteractionCandidate->CanInteractWith(this))
+	if (InteractionCandidate->CanInteractWith(this) &&
+		CanInteractWith(InteractionCandidate))
 	{
 		StartInteraction();
 	}
@@ -147,6 +149,22 @@ void UInteractorComponent::EndInteraction(EInteractionResult InteractionResult, 
 	default:
 		break;
 	}
+}
+
+bool UInteractorComponent::CanInteractWith(UInteractionComponent* InteractionComponent)
+{
+	/* Get Owner */
+	AActor* Owner = GetOwner();
+
+	/* Check for Interaction Interface and Execute If Owner Implements */
+	if (IsValid(Owner) &&
+		Owner->GetClass()->ImplementsInterface(UInteractionInterface::StaticClass()))
+	{
+
+		return IInteractionInterface::Execute_CanInteractWith(Owner, InteractionCandidate->GetOwner());
+	}
+
+	return true;
 }
 
 void UInteractorComponent::OnInteractorTimerCompleted()

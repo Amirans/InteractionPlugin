@@ -35,12 +35,18 @@ public:
 		void TryStopInteraction();
 
 	/**
-	* Ends the Interaction with Result
-	*
-	* @param InteractionResult - Result of the Interaction Process
-	*/
+	 * Ends the Interaction with Result
+	 *
+	 * @param InteractionResult - Result of the Interaction Process
+	 */
 	UFUNCTION()
 		void EndInteraction(EInteractionResult InteractionResult,UInteractionComponent* InteractionComponent);
+
+	/**
+	 * Validates Condition and Returns Whether Interaction is Allowed 
+	 */
+	UFUNCTION(BlueprintCallable, Category = Interactor)
+		bool CanInteractWith(UInteractionComponent* InteractionComponent);
 
 protected:
 

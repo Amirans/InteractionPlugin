@@ -52,7 +52,7 @@ public:
 	 * Validates Condition and Returns Whether Interaction is Allowed
 	 */
 	UFUNCTION(BlueprintCallable, Category = InteractionComponent)
-		virtual bool CanInteractWith(UInteractorComponent* InteractoComp);
+		virtual bool CanInteractWith(UInteractorComponent* InteractorComp);
 
 	/**
 	 * Invoked By Interactor to Notify Interaction is Under Focus

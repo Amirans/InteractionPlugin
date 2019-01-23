@@ -2,6 +2,7 @@
 
 #include "InteractionComponent.h"
 #include "InteractorComponents/InteractorComponent.h"
+#include "Interface/InteractionInterface.h"
 
 DEFINE_LOG_CATEGORY(LogInteraction);
 
@@ -49,8 +50,19 @@ bool UInteractionComponent::StopInteraction(UInteractorComponent* InteractorComp
 	return true;
 }
 
-bool UInteractionComponent::CanInteractWith(UInteractorComponent* InteractoComp)
+bool UInteractionComponent::CanInteractWith(UInteractorComponent* InteractorComp)
 {
+
+	/* Get Owner */
+	AActor* Owner = GetOwner();
+
+	/* Check for Interaction Interface and Execute If Owner Implements */
+	if (IsValid(Owner) &&
+		Owner->GetClass()->ImplementsInterface(UInteractionInterface::StaticClass()))
+	{
+		return IInteractionInterface::Execute_CanInteractWith(Owner, InteractorComp->GetOwner());
+	}
+
 	return true;
 }
 
