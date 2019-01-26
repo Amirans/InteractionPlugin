@@ -7,7 +7,6 @@
 #include "InteractionComponents/InteractionComponent_Hold.h"
 #include "Interface/InteractionInterface.h"
 
-
 UInteractorComponent::UInteractorComponent()
 	:bInteracting(false)
 {
@@ -161,7 +160,7 @@ bool UInteractorComponent::CanInteractWith(UInteractionComponent* InteractionCom
 		Owner->GetClass()->ImplementsInterface(UInteractionInterface::StaticClass()))
 	{
 
-		return IInteractionInterface::Execute_CanInteractWith(Owner, InteractionCandidate->GetOwner());
+		return IInteractionInterface::Execute_ICanInteractWith(Owner, InteractionCandidate->GetOwner());
 	}
 
 	return true;
@@ -193,42 +192,94 @@ void UInteractorComponent::OnRep_bInteracting()
 
 void UInteractorComponent::RegisterNewInteraction(UInteractionComponent* NewInteraction)
 {
-
-	if (GetInteractorRole() != ROLE_Authority)
+	if (!IsValid(NewInteraction))
 	{
-		/* Notify Interaction Of In Focus Status*/
-		if (IsValid(InteractionCandidate))
-		{
-			InteractionCandidate->SetInteractionFocusState(true);
-		}
+		UE_LOG(LogInteractor, Warning, TEXT("Unable to Register New Interaction Due to Invalid Interaction Component"));
+		return;
+	}
+
+	/* Prevent Duplicate Registration */
+	if (InteractionCandidate == NewInteraction)
+	{
+		return;
 	}
 
 	InteractionCandidate = NewInteraction;
 
+	/* Local Interactor */
+	if (GetInteractorRemoteRole() == ROLE_Authority)
+	{
+		NewInteraction->SetInteractionFocusState(true);
+
+		if (OnNewInteraction.IsBound())
+		{
+			OnNewInteraction.Broadcast(NewInteraction);
+		}
+	}
 }
 
 void UInteractorComponent::DeRegisterInteraction()
 {
-
-	if (GetInteractorRole() == ROLE_Authority)
+	/* Cancel Interaction If Already Interacting */
+	if (bInteracting)
 	{
-		//TODO: Cancel Interaction If Any in Progress
+		TryStopInteraction();
 	}
-	else
+
+	/* Local Interactor */
+	if (GetInteractorRemoteRole() == ENetRole::ROLE_Authority)
 	{
-		/* Notify Interaction Of Focus Lost  Status */
 		if (IsValid(InteractionCandidate))
 		{
-			InteractionCandidate->SetInteractionFocusState(false);
+				InteractionCandidate->SetInteractionFocusState(false);
+		}
+
+		if (OnNewInteraction.IsBound())
+		{
+				OnNewInteraction.Broadcast(nullptr);
 		}
 	}
 
 	InteractionCandidate = nullptr;
 }
 
-// Called every frame
 void UInteractorComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	if (bInteracting)
+	{
+		/* If Interacting Get the New Interaction Candidate and Compare to the Current Interacting Component*/
+		const UInteractionComponent* NewInteraction = GetInteractionTrace();
+
+		if (!ValidateDirection(NewInteraction) || NewInteraction != InteractionCandidate)
+		{
+			/* Cancel Interaction If not Valid Interaction */
+			DeRegisterInteraction();
+		}
+
+	}
+	else if(GetInteractorRemoteRole() == ROLE_Authority)
+	{
+		/* Locally Get Interaction and Validate the Component */
+		UInteractionComponent* NewInteraction = GetInteractionTrace();
+
+		if (ValidateDirection(NewInteraction))
+		{
+			/* Register If New Interaction is Not Equal to the Current Candidate */
+			if (NewInteraction != InteractionCandidate)
+			{
+				RegisterNewInteraction(NewInteraction);
+			}
+		}
+		else if(IsValid(InteractionCandidate))
+		{
+			/* DeRegister Interaction If No Valid Interaction Component Exits*/
+			DeRegisterInteraction();
+		}
+		
+	}
 }
+
+
 

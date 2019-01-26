@@ -11,6 +11,7 @@
 DECLARE_LOG_CATEGORY_EXTERN(LogInteractor, Log, All);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnInteractionUpdated, EInteractionResult, InteractionResult, EInteractionType, InteractionType, AActor*, InteractionActor);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnNewInteraction, UInteractionComponent*, NewInteraction);
 
 class UInteractionComponent;
 
@@ -26,10 +27,16 @@ public:
 
 
 	/**
-	 * Delegate to Notify Interaction Changes
+	 * Delegate to Notify Interaction State Changes
 	 */
 	UPROPERTY(BlueprintAssignable)
 		FOnInteractionUpdated OnInteractionUpdated;
+
+	/**
+	 * Delegate to Notify New Interaction Component in Focus
+	 */
+	UPROPERTY(BlueprintAssignable)
+		FOnNewInteraction OnNewInteraction;
 
 	/**
 	 * Traces From the Eye Point of View
@@ -60,7 +67,7 @@ public:
 	UFUNCTION(BlueprintPure, Category = Interactor)
 		inline ENetRole GetInteractorRemoteRole() const
 	{
-		return IsValid(GetOwner()) ? GetOwner()->GetLocalRole() : ENetRole::ROLE_None;
+		return IsValid(GetOwner()) ? GetOwner()->GetRemoteRole() : ENetRole::ROLE_None;
 	};
 
 	/**

@@ -30,5 +30,5 @@ public:
 	 * @return True If Interaction is Allowed else Interaction will not Start
 	 */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = InteractionInterface)
-		bool CanInteractWith(AActor* OtherInteract);
+		bool ICanInteractWith(AActor* OtherInteract);
 };

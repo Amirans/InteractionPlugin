@@ -6,8 +6,6 @@
 #include "InteractorComponents/InteractorComponentBase.h"
 #include "InteractorComponent.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnNewInteraction, const UInteractionComponent*, NewInteraction);
-
 class UInteractionComponent;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )

@@ -60,7 +60,7 @@ bool UInteractionComponent::CanInteractWith(UInteractorComponent* InteractorComp
 	if (IsValid(Owner) &&
 		Owner->GetClass()->ImplementsInterface(UInteractionInterface::StaticClass()))
 	{
-		return IInteractionInterface::Execute_CanInteractWith(Owner, InteractorComp->GetOwner());
+		return IInteractionInterface::Execute_ICanInteractWith(Owner, InteractorComp->GetOwner());
 	}
 
 	return true;
