@@ -7,7 +7,8 @@
 
 DEFINE_LOG_CATEGORY(LogInteractor);
 
-UInteractorComponentBase::UInteractorComponentBase()
+UInteractorComponentBase::UInteractorComponentBase() 
+	:InteractorStateNetMode(EInteractionNetMode::INM_OwnerOnly)
 {
 	PrimaryComponentTick.bCanEverTick = true;
 	this->SetIsReplicated(true);
@@ -109,8 +110,17 @@ void UInteractorComponentBase::OnInteractorTimerCompleted()
 
 void UInteractorComponentBase::NotifyInteraction(EInteractionResult InteractionResult, EInteractionType InteractionType)
 {
-	//TODO: Implement Config and Multicast Call
-	Client_NotifyInteraction(InteractionResult, InteractionType);
+	switch (InteractorStateNetMode)
+	{
+	case EInteractionNetMode::INM_OwnerOnly:
+		Client_NotifyInteraction(InteractionResult, InteractionType);
+		break;
+	case EInteractionNetMode::INM_All:
+		Multi_NotifyInteraction(InteractionResult, InteractionType);
+		break;
+	default:
+		break;
+	}
 }
 
 void UInteractorComponentBase::Client_NotifyInteraction_Implementation(EInteractionResult InteractionResult, EInteractionType InteractionType)

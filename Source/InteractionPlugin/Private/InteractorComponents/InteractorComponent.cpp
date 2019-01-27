@@ -78,6 +78,10 @@ void UInteractorComponent::StartInteraction()
 	if (!bStarted)
 	{
 		SetInteracting(false);
+
+		/* Notify Interaction Failed Result */
+		NotifyInteraction(EInteractionResult::IR_Failed, InteractionCandidate->GetInteractionType());
+
 		return;
 	}
 
@@ -89,6 +93,8 @@ void UInteractorComponent::StartInteraction()
 		ToggleInteractorTimer(true,IsValid(InteractionHold) ? InteractionHold->GetInteractionDuration() : 0.1f);
 	}
 
+	/* Notify Interaction Started Result */
+	NotifyInteraction(EInteractionResult::IR_Started, InteractionCandidate->GetInteractionType());
 }
 
 void UInteractorComponent::TryStopInteraction()
@@ -128,26 +134,8 @@ void UInteractorComponent::EndInteraction(EInteractionResult InteractionResult, 
 	/* Set Interacting Status */
 	SetInteracting(false);
 
-	UE_LOG(LogInteractor, Log, TEXT("Ending Interaction"));
-
-	/* Handle Notification Based On Interaction Result */
-	switch (InteractionResult)
-	{
-	case EInteractionResult::IR_None:
-		break;
-	case EInteractionResult::IR_Successful:
-		UE_LOG(LogTemp, Warning, TEXT("Interaction Successful"));
-		break;
-	case EInteractionResult::IR_Failed:
-		UE_LOG(LogTemp, Warning, TEXT("Interaction Failed"));
-		break;
-	case EInteractionResult::IR_Interrupted:
-		ToggleInteractorTimer(false);
-		UE_LOG(LogTemp, Warning, TEXT("Interaction Interrupted"));
-		break;
-	default:
-		break;
-	}
+	/* Notify Interaction Started Result */
+	NotifyInteraction(InteractionResult, InteractionCandidate->GetInteractionType());
 }
 
 bool UInteractorComponent::CanInteractWith(UInteractionComponent* InteractionComponent)

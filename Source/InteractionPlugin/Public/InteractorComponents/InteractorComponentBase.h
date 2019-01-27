@@ -38,6 +38,17 @@ public:
 	UPROPERTY(BlueprintAssignable)
 		FOnNewInteraction OnNewInteraction;
 
+
+	/**
+	 * [Config] Configuration to Determine Interaction State Over Net
+	 *
+	 * None		 : No Clients Receive the Interaction State Update
+	 * OwnerOnly : Only the Local Owner of the Interactor Component Will Receive the Update
+	 * All		 : All Clients With this Instance of the Interactor Component Will Receive the Update
+	 */
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Interactor|Config", meta = (DisplayName = "State Net Mode"))
+		EInteractionNetMode InteractorStateNetMode;
+
 	/**
 	 * Traces From the Eye Point of View
 	 *
