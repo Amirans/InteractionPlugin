@@ -11,7 +11,7 @@ UInteractionComponent::UInteractionComponent()
 	,bMultipleInteraction(true)
 	,InteractionStateNetMode(EInteractionNetMode::INM_OwnerOnly)
 {
-
+	this->SetIsReplicated(true);
 }
 
 void UInteractionComponent::BeginPlay()
@@ -82,20 +82,17 @@ void UInteractionComponent::CompleteInteraction(EInteractionResult InteractionRe
 
 void UInteractionComponent::NotifyInteraction(EInteractionResult NewInteractionResult, UInteractorComponent* NewInteractionComponent)
 {
-	switch (InteractionStateNetMode)
+	/**
+	 * @note: OwnerOnly Notifications are Handled and Recieved By the Interactor Component
+	 */
+
+	if (InteractionStateNetMode == EInteractionNetMode::INM_All)
 	{
-	case EInteractionNetMode::INM_OwnerOnly:
-		Client_NotifyInteraction(NewInteractionResult, NewInteractionComponent);
-		break;
-	case EInteractionNetMode::INM_All:
 		Multi_NotifyInteraction(NewInteractionResult, NewInteractionComponent);
-		break;
-	default:
-		break;
 	}
 }
 
-void UInteractionComponent::Client_NotifyInteraction_Implementation(EInteractionResult NewInteractionResult, UInteractorComponent* NewInteractionComponent)
+void UInteractionComponent::ClientNotifyInteraction(EInteractionResult NewInteractionResult, UInteractorComponent* NewInteractionComponent)
 {
 	if (OnInteractionStateChanged.IsBound())
 	{

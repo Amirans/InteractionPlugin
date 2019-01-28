@@ -77,6 +77,16 @@ public:
 		void SetInteractionFocusState(bool bNewFocus);
 
 	/**
+	 * Owner Only Interaction State Notification
+	 *
+	 * @note Owner Only Interaction State is Handled and Recieved by Interactor
+	 * @param InteractionResult - Result of the Interaction
+	 * @param InteractionType - Type of Interaction
+	 */
+	UFUNCTION()
+		void ClientNotifyInteraction(EInteractionResult NewInteractionResult, UInteractorComponent* NewInteractionComponent);
+
+	/**
 	 * Getter For Interaction Component Interaction Type
 	 */
 	UFUNCTION(BlueprintGetter, Category = InteractionComponent)
@@ -121,15 +131,6 @@ protected:
 	 */
 	UFUNCTION()
 		void NotifyInteraction(EInteractionResult NewInteractionResult, UInteractorComponent* NewInteractionComponent);
-
-	/**
-	 * Owner Only Interaction State Notification
-	 *
-	 * @param InteractionResult - Result of the Interaction
-	 * @param InteractionType - Type of Interaction
-	 */
-	UFUNCTION(Client, Reliable)
-		void Client_NotifyInteraction(EInteractionResult NewInteractionResult, UInteractorComponent* NewInteractionComponent);
 
 	/**
 	 * Multi Cast Call to all Clients Notifying Interaction State

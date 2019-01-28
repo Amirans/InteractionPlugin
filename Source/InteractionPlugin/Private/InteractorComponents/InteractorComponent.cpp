@@ -6,11 +6,16 @@
 #include "InteractionComponents/InteractionComponent.h"
 #include "InteractionComponents/InteractionComponent_Hold.h"
 #include "Interface/InteractionInterface.h"
+#include "DrawDebugHelpers.h"
+
+DEFINE_LOG_CATEGORY(LogInteractor);
 
 UInteractorComponent::UInteractorComponent()
-	:bInteracting(false)
+	:bInteracting(false),
+	InteractorStateNetMode(EInteractionNetMode::INM_OwnerOnly)
 {
 	PrimaryComponentTick.bCanEverTick = true;
+	this->SetIsReplicated(true);
 }
 
 void UInteractorComponent::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const
@@ -27,8 +32,73 @@ void UInteractorComponent::BeginPlay()
 
 	/* Only Tick On Server and Owning Client */
 	SetComponentTickEnabled(
-		GetInteractorRemoteRole() == ROLE_Authority || GetInteractorRole() == ROLE_Authority
+		ShouldTickInstance()
 	);	
+}
+
+UInteractionComponent* UInteractorComponent::GetInteractionTrace()
+{
+	/* Get World */
+	const UWorld* World = GetWorld();
+	if (World == nullptr)
+	{
+		return nullptr;
+	}
+
+	/* Get Owner */
+	const AActor* Owner = GetOwner();
+	if (!IsValid(Owner))
+	{
+		return nullptr;
+	}
+
+	/* Set Query Params */
+	const FName TraceTag("InteractionTrace");
+	FCollisionQueryParams QueryParams = FCollisionQueryParams(TraceTag, true, Owner);
+
+	/* Get Start Location and Rotation */
+	FVector OutLocation;
+	FRotator OutRotator;
+
+	Owner->GetActorEyesViewPoint(OutLocation, OutRotator);
+
+	const FVector StartLocation = OutLocation;
+	const FVector EndLocation = (OutRotator.Vector() * 1200.0f) + OutLocation;
+
+	/* Prepare Hit */
+	FHitResult OutHit;
+
+	DrawDebugLine(World, StartLocation, EndLocation, FColor::Red, false, 0.0f, 1.f);
+
+	/* Single Line Trace */
+	const bool bHit = World->LineTraceSingleByChannel(OutHit, StartLocation, EndLocation, ECollisionChannel::ECC_Visibility, QueryParams);
+
+	/* Get Interaction Component */
+	if (bHit)
+	{
+		UActorComponent* ActorComp = OutHit.Actor->GetComponentByClass(UInteractionComponent::StaticClass());
+
+		return Cast <UInteractionComponent>(ActorComp);
+	}
+
+	return nullptr;
+
+}
+
+bool UInteractorComponent::ValidateDirection(const UInteractionComponent* InteractionComponent) const
+{
+	if (!IsValid(InteractionComponent))
+	{
+		return false;
+	}
+
+	/* Get Interactor Direction from Our Location */
+	FVector Direction = GetOwner()->GetActorLocation() - InteractionComponent->GetComponentLocation();
+	Direction.Normalize();
+
+	float DirectionPoint = 0.0f;
+
+	return FVector::DotProduct(Direction, InteractionComponent->GetForwardVector()) > 0.5f;
 }
 
 void UInteractorComponent::TryStartInteraction()
@@ -154,6 +224,30 @@ bool UInteractorComponent::CanInteractWith(UInteractionComponent* InteractionCom
 	return true;
 }
 
+void UInteractorComponent::ToggleInteractorTimer(bool bStartTImer /*= true*/, float NewInteractionDuration /*= 0.1f*/)
+{
+	/* Get World */
+	const UWorld* World = GetWorld();
+
+	if (!IsValid(World))
+	{
+		UE_LOG(LogInteractor, Warning, TEXT("Unable to Toggle Hold Interaction Due to Null World"));
+		return;
+	}
+
+	if (bStartTImer)
+	{
+		/* Start The Timer */
+		World->GetTimerManager().SetTimer(InteractorTimer, this, &UInteractorComponent::OnInteractorTimerCompleted, NewInteractionDuration);
+	}
+	else
+	{
+		/* Clear The Timer */
+		World->GetTimerManager().ClearTimer(InteractorTimer);
+	}
+
+}
+
 void UInteractorComponent::OnInteractorTimerCompleted()
 {
 	UE_LOG(LogInteractor, Log, TEXT("Interactor Timer Completed"));
@@ -195,7 +289,7 @@ void UInteractorComponent::RegisterNewInteraction(UInteractionComponent* NewInte
 	InteractionCandidate = NewInteraction;
 
 	/* Local Interactor */
-	if (GetInteractorRemoteRole() == ROLE_Authority)
+	if (IsLocalInteractor())
 	{
 		NewInteraction->SetInteractionFocusState(true);
 
@@ -215,7 +309,7 @@ void UInteractorComponent::DeRegisterInteraction()
 	}
 
 	/* Local Interactor */
-	if (GetInteractorRemoteRole() == ENetRole::ROLE_Authority)
+	if (IsLocalInteractor())
 	{
 		if (IsValid(InteractionCandidate))
 		{
@@ -247,7 +341,7 @@ void UInteractorComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 		}
 
 	}
-	else if(GetInteractorRemoteRole() == ROLE_Authority)
+	else if(IsLocalInteractor())
 	{
 		/* Locally Get Interaction and Validate the Component */
 		UInteractionComponent* NewInteraction = GetInteractionTrace();
@@ -269,5 +363,48 @@ void UInteractorComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 	}
 }
 
+void UInteractorComponent::NotifyInteraction(EInteractionResult NewInteractionResult, EInteractionType NewInteractionType)
+{
+	switch (InteractorStateNetMode)
+	{
+	case EInteractionNetMode::INM_OwnerOnly:
+		Client_NotifyInteraction(NewInteractionResult, NewInteractionType);
+		break;
+	case EInteractionNetMode::INM_All:
+		Multi_NotifyInteraction(NewInteractionResult, NewInteractionType);
+		break;
+	default:
+		break;
+	}
+}
 
+void UInteractorComponent::Client_NotifyInteraction_Implementation(EInteractionResult NewInteractionResult, EInteractionType NewInteractionType)
+{
+	if (OnInteractorStateChanged.IsBound())
+	{
+		OnInteractorStateChanged.Broadcast(
+			NewInteractionResult,
+			NewInteractionType,
+			IsValid(InteractionCandidate) ? InteractionCandidate->GetOwner() : nullptr
+		);
+	}
 
+	/* Notify Interaction Locally If Interaction Net Mode is Owner Only*/
+	if (IsValid(InteractionCandidate) &&
+		InteractionCandidate->InteractionStateNetMode == EInteractionNetMode::INM_OwnerOnly)
+	{
+		InteractionCandidate->ClientNotifyInteraction(NewInteractionResult, this);
+	}
+}
+
+void UInteractorComponent::Multi_NotifyInteraction_Implementation(EInteractionResult NewInteractionResult, EInteractionType NewInteractionType)
+{
+	if (OnInteractorStateChanged.IsBound())
+	{
+		OnInteractorStateChanged.Broadcast(
+			NewInteractionResult,
+			NewInteractionType,
+			IsValid(InteractionCandidate) ? InteractionCandidate->GetOwner() : nullptr
+		);
+	}
+}

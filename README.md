@@ -11,9 +11,9 @@ The Goal of this plug-in is to handle the interaction between player and objects
 	- Multiple Interaction [DONE]
 	- Custom Defined Condition E.g Team Id [DONE]
 3. Multiplayer/Network Support
+	- Interaction States Replication [DONE]
 	- Interaction Process [DONE]
-	- Interaction States Replication
-	- Notifications for Animations
+	- Notifications for Animations [DONE]
 4. Documentation
 	- Showcase Level
 	- Interaction Widgets
