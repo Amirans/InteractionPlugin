@@ -9,6 +9,7 @@ DEFINE_LOG_CATEGORY(LogInteraction);
 UInteractionComponent::UInteractionComponent()
 	:InteractionType(EInteractionType::IT_None)
 	,bMultipleInteraction(true)
+	,InteractionStateNetMode(EInteractionNetMode::INM_OwnerOnly)
 {
 
 }
@@ -73,5 +74,43 @@ void UInteractionComponent::CompleteInteraction(EInteractionResult InteractionRe
 	{
 		/* Invoke Interactor End Interaction */
 		InteractorComp->EndInteraction(InteractionResult, this);
+
+		/* Notify Interaction State */
+		NotifyInteraction(InteractionResult, InteractorComp);
+	}
+}
+
+void UInteractionComponent::NotifyInteraction(EInteractionResult NewInteractionResult, UInteractorComponent* NewInteractionComponent)
+{
+	switch (InteractionStateNetMode)
+	{
+	case EInteractionNetMode::INM_OwnerOnly:
+		Client_NotifyInteraction(NewInteractionResult, NewInteractionComponent);
+		break;
+	case EInteractionNetMode::INM_All:
+		Multi_NotifyInteraction(NewInteractionResult, NewInteractionComponent);
+		break;
+	default:
+		break;
+	}
+}
+
+void UInteractionComponent::Client_NotifyInteraction_Implementation(EInteractionResult NewInteractionResult, UInteractorComponent* NewInteractionComponent)
+{
+	if (OnInteractionStateChanged.IsBound())
+	{
+		OnInteractionStateChanged.Broadcast(
+			NewInteractionResult,
+			IsValid(NewInteractionComponent) ? NewInteractionComponent->GetOwner() : nullptr);
+	}
+}
+
+void UInteractionComponent::Multi_NotifyInteraction_Implementation(EInteractionResult NewInteractionResult, UInteractorComponent* NewInteractionComponent)
+{
+	if (OnInteractionStateChanged.IsBound())
+	{
+		OnInteractionStateChanged.Broadcast(
+			NewInteractionResult,
+			IsValid(NewInteractionComponent) ? NewInteractionComponent->GetOwner() : nullptr);
 	}
 }

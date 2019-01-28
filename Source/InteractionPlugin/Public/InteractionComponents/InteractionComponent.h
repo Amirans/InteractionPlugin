@@ -7,7 +7,7 @@
 #include "InteractionDataTypes.h"
 #include "InteractionComponent.generated.h"
 
-
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnInteractionStateChanged, EInteractionResult, InteractionResult, AActor*, InteractionActor);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInteractionFocusChanged, bool, bInFocus);
 
 
@@ -28,6 +28,22 @@ public:
 	/* Delegate to Notify Interactor Focus Changed */
 	UPROPERTY(BlueprintAssignable)
 		FOnInteractionFocusChanged OnInteractionFocusChanged;
+
+	/**
+	 * Delegate to Notify Interaction State Changes
+	 */
+	UPROPERTY(BlueprintAssignable)
+		FOnInteractionStateChanged OnInteractionStateChanged;
+
+	/**
+	 * [Config] Configuration to Determine Interaction State Over Net
+	 *
+	 * None		 : No Clients Receive the Interaction State Update
+	 * OwnerOnly : Only the Local Owner of the Interaction Component Will Receive the Update
+	 * All		 : All Clients With this Instance of the Interaction Component Will Receive the Update
+	 */
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Interactor|Config", meta = (DisplayName = "State Net Mode"))
+		EInteractionNetMode InteractionStateNetMode;
 
 	/**
 	 * Starts Interaction for a Given Interactor Component
@@ -96,4 +112,31 @@ protected:
 	 */
 	UFUNCTION()
 		virtual void CompleteInteraction(EInteractionResult InteractionResult, UInteractorComponent* InteractorComp);
+
+	/**
+	 * Handles Interaction Notification Based on Config
+	 *
+	 * @param InteractionResult - Result of the Interaction
+	 * @param InteractionType - Type of Interaction
+	 */
+	UFUNCTION()
+		void NotifyInteraction(EInteractionResult NewInteractionResult, UInteractorComponent* NewInteractionComponent);
+
+	/**
+	 * Owner Only Interaction State Notification
+	 *
+	 * @param InteractionResult - Result of the Interaction
+	 * @param InteractionType - Type of Interaction
+	 */
+	UFUNCTION(Client, Reliable)
+		void Client_NotifyInteraction(EInteractionResult NewInteractionResult, UInteractorComponent* NewInteractionComponent);
+
+	/**
+	 * Multi Cast Call to all Clients Notifying Interaction State
+	 *
+	 * @param InteractionResult - Result of the Interaction
+	 * @param InteractionType - Type of Interaction
+	 */
+	UFUNCTION(NetMulticast, Reliable)
+		void Multi_NotifyInteraction(EInteractionResult NewInteractionResult, UInteractorComponent* NewInteractionComponent);
 };

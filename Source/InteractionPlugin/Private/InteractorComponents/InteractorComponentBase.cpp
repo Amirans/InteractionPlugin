@@ -108,40 +108,40 @@ void UInteractorComponentBase::OnInteractorTimerCompleted()
 	//Invoked By Interactor Timer On Timer Completed 
 }
 
-void UInteractorComponentBase::NotifyInteraction(EInteractionResult InteractionResult, EInteractionType InteractionType)
+void UInteractorComponentBase::NotifyInteraction(EInteractionResult NewInteractionResult, EInteractionType NewInteractionType)
 {
 	switch (InteractorStateNetMode)
 	{
 	case EInteractionNetMode::INM_OwnerOnly:
-		Client_NotifyInteraction(InteractionResult, InteractionType);
+		Client_NotifyInteraction(NewInteractionResult, NewInteractionType);
 		break;
 	case EInteractionNetMode::INM_All:
-		Multi_NotifyInteraction(InteractionResult, InteractionType);
+		Multi_NotifyInteraction(NewInteractionResult, NewInteractionType);
 		break;
 	default:
 		break;
 	}
 }
 
-void UInteractorComponentBase::Client_NotifyInteraction_Implementation(EInteractionResult InteractionResult, EInteractionType InteractionType)
+void UInteractorComponentBase::Client_NotifyInteraction_Implementation(EInteractionResult NewInteractionResult, EInteractionType NewInteractionType)
 {
-	if (OnInteractionUpdated.IsBound())
+	if (OnInteractorStateChanged.IsBound())
 	{
-		OnInteractionUpdated.Broadcast(
-			InteractionResult, 
-			InteractionType, 
+		OnInteractorStateChanged.Broadcast(
+			NewInteractionResult,
+			NewInteractionType,
 			IsValid(InteractionCandidate) ? InteractionCandidate->GetOwner() : nullptr
 		);
 	}
 }
 
-void UInteractorComponentBase::Multi_NotifyInteraction_Implementation(EInteractionResult InteractionResult, EInteractionType InteractionType)
+void UInteractorComponentBase::Multi_NotifyInteraction_Implementation(EInteractionResult NewInteractionResult, EInteractionType NewInteractionType)
 {
-	if (OnInteractionUpdated.IsBound())
+	if (OnInteractorStateChanged.IsBound())
 	{
-		OnInteractionUpdated.Broadcast(
-			InteractionResult,
-			InteractionType,
+		OnInteractorStateChanged.Broadcast(
+			NewInteractionResult,
+			NewInteractionType,
 			IsValid(InteractionCandidate) ? InteractionCandidate->GetOwner() : nullptr
 		);
 	}

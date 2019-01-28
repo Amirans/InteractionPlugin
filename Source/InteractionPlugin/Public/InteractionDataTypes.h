@@ -28,3 +28,4 @@ enum class EInteractionNetMode : uint8
 	INM_OwnerOnly	UMETA(DisplayName = "OwnerOnly"),
 	INM_All			UMETA(DisplayName = "All")
 };
+

@@ -10,7 +10,7 @@
 
 DECLARE_LOG_CATEGORY_EXTERN(LogInteractor, Log, All);
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnInteractionUpdated, EInteractionResult, InteractionResult, EInteractionType, InteractionType, AActor*, InteractionActor);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnInteractorStateChanged, EInteractionResult, InteractionResult, EInteractionType, InteractionType, AActor*, InteractionActor);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnNewInteraction, UInteractionComponent*, NewInteraction);
 
 class UInteractionComponent;
@@ -30,7 +30,7 @@ public:
 	 * Delegate to Notify Interaction State Changes
 	 */
 	UPROPERTY(BlueprintAssignable)
-		FOnInteractionUpdated OnInteractionUpdated;
+		FOnInteractorStateChanged OnInteractorStateChanged;
 
 	/**
 	 * Delegate to Notify New Interaction Component in Focus
@@ -138,7 +138,7 @@ protected:
 	 * @param InteractionType - Type of Interaction
 	 */
 	UFUNCTION()
-		void NotifyInteraction(EInteractionResult InteractionResult, EInteractionType InteractionType);
+		void NotifyInteraction(EInteractionResult NewInteractionResult, EInteractionType NewInteractionType);
 
 	/**
 	 * Owner Only Interaction State Notification
@@ -147,7 +147,7 @@ protected:
 	 * @param InteractionType - Type of Interaction
 	 */
 	UFUNCTION(Client, Reliable)
-		void Client_NotifyInteraction(EInteractionResult InteractionResult, EInteractionType InteractionType);
+		void Client_NotifyInteraction(EInteractionResult NewInteractionResult, EInteractionType NewInteractionType);
 
 	/**
 	 * Multi Cast Call to all Clients Notifying Interaction State
@@ -156,7 +156,7 @@ protected:
 	 * @param InteractionType - Type of Interaction
 	 */
 	UFUNCTION(NetMulticast, Reliable)
-		void Multi_NotifyInteraction(EInteractionResult InteractionResult, EInteractionType InteractionType);
+		void Multi_NotifyInteraction(EInteractionResult NewInteractionResult, EInteractionType NewInteractionType);
 
 private:
 
