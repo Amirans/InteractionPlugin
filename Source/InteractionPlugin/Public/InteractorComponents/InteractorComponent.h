@@ -50,6 +50,23 @@ public:
 		EInteractionNetMode InteractorStateNetMode;
 
 	/**
+	 * [Config] Define the Distance Which an Interaction Component Will be Detected and be In Focus
+	 */
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Interactor|Config")
+		float InteractorReachLength;
+
+
+#if WITH_EDITORONLY_DATA
+
+	/**
+	 * [Editor Only] Debug Boolean to Determine Whether Trace Line Should be Drawn
+	 */
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Interactor|Debug")
+		bool bDrawInteractorTrace;
+
+#endif
+
+	/**
 	 * Tries to Start Interaction On Authority Side of the Interactor
 	 * Gets Interaction On Server Side to Start
 	 */

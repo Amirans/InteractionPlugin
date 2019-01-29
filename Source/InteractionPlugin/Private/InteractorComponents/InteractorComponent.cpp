@@ -6,13 +6,17 @@
 #include "InteractionComponents/InteractionComponent.h"
 #include "InteractionComponents/InteractionComponent_Hold.h"
 #include "Interface/InteractionInterface.h"
+
+#if WITH_EDITORONLY_DATA
 #include "DrawDebugHelpers.h"
+#endif
 
 DEFINE_LOG_CATEGORY(LogInteractor);
 
 UInteractorComponent::UInteractorComponent()
 	:bInteracting(false),
-	InteractorStateNetMode(EInteractionNetMode::INM_OwnerOnly)
+	InteractorStateNetMode(EInteractionNetMode::INM_OwnerOnly),
+	InteractorReachLength(120.0f)
 {
 	PrimaryComponentTick.bCanEverTick = true;
 	this->SetIsReplicated(true);
@@ -63,12 +67,17 @@ UInteractionComponent* UInteractorComponent::GetInteractionTrace()
 	Owner->GetActorEyesViewPoint(OutLocation, OutRotator);
 
 	const FVector StartLocation = OutLocation;
-	const FVector EndLocation = (OutRotator.Vector() * 1200.0f) + OutLocation;
+	const FVector EndLocation = (OutRotator.Vector() * InteractorReachLength) + OutLocation;
 
 	/* Prepare Hit */
 	FHitResult OutHit;
 
-	DrawDebugLine(World, StartLocation, EndLocation, FColor::Red, false, 0.0f, 1.f);
+#if WITH_EDITORONLY_DATA
+	if (bDrawInteractorTrace)
+	{
+		DrawDebugLine(World, StartLocation, EndLocation, FColor::Red, false, 0.0f, 1.f);
+	}
+#endif
 
 	/* Single Line Trace */
 	const bool bHit = World->LineTraceSingleByChannel(OutHit, StartLocation, EndLocation, ECollisionChannel::ECC_Visibility, QueryParams);
@@ -204,8 +213,20 @@ void UInteractorComponent::EndInteraction(EInteractionResult InteractionResult, 
 	/* Set Interacting Status */
 	SetInteracting(false);
 
+	/* Get Interaction Type */
+	const EInteractionType EndingInteractionType = IsValid(InteractionComponent) ? InteractionComponent->GetInteractionType() : EInteractionType::IT_None;
+
+	/* Clear Interaction Timer In Case Of Intruption */
+	if(EndingInteractionType == EInteractionType::IT_Hold)
+	{
+		ToggleInteractorTimer(false);
+	}
+
 	/* Notify Interaction Started Result */
-	NotifyInteraction(InteractionResult, InteractionCandidate->GetInteractionType());
+	NotifyInteraction(
+		InteractionResult, 
+		EndingInteractionType
+	);
 }
 
 bool UInteractorComponent::CanInteractWith(UInteractionComponent* InteractionComponent)

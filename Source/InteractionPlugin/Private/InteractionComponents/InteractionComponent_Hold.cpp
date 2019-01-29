@@ -29,12 +29,17 @@ void UInteractionComponent_Hold::OnHoldCompleted(UInteractorComponent* Interacto
 {
 	if (IsInteractionTimeOver(InteractorComp))
 	{
-		/* Remove the Interactor from List */
-		Interactors.Remove(InteractorComp);
-
 		/* Complete the Interaction */
 		CompleteInteraction(EInteractionResult::IR_Successful, InteractorComp);
 	}
+	else
+	{
+		/* Fail Interaction If Time Not Over */
+		CompleteInteraction(EInteractionResult::IR_Failed, InteractorComp);
+	}
+
+	/* Remove the Interactor from List */
+	Interactors.Remove(InteractorComp);
 }
 
 bool UInteractionComponent_Hold::StopInteraction(UInteractorComponent* InteractorComp)
@@ -68,8 +73,11 @@ bool UInteractionComponent_Hold::IsInteractionTimeOver(const UInteractorComponen
 	{
 		const UWorld* World = GetWorld();
 
-		/* Return True If the Interaction Initiated Time Plus the Duration Has Been Passed*/
-		return IsValid(World) ? Interactors[InteractorComponent] + InteractionDuration <= World->GetTimeSeconds() : false;
+		/* Interaction Duration With Addition Error Tolerance of 0.5 */
+		const float ErrorToleranceDuration = InteractionDuration - 0.5f;
+
+		return IsValid(World) ? Interactors[InteractorComponent] + ErrorToleranceDuration <= World->GetTimeSeconds() : false;
+
 	}
 
 	return false;
