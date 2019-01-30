@@ -29,6 +29,17 @@ void UInteractorComponent::GetLifetimeReplicatedProps(TArray< FLifetimeProperty 
 	DOREPLIFETIME(UInteractorComponent, bInteracting);
 }
 
+void UInteractorComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+
+	if ((EndPlayReason == EEndPlayReason::Destroyed ||
+		EndPlayReason == EEndPlayReason::RemovedFromWorld) && bInteracting)
+	{
+		TryStopInteraction();
+	}
+}
+
 // Called when the game starts
 void UInteractorComponent::BeginPlay()
 {
@@ -281,7 +292,7 @@ void UInteractorComponent::OnInteractorTimerCompleted()
 		/* Fail Interaction to Prevent Deadlock */
 		EndInteraction(EInteractionResult::IR_Failed, nullptr);
 
-		UE_LOG(LogInteractor, Error, TEXT("Failed to Cast to Interaction Hold On %s"), *InteractionCandidate->GetName());
+		UE_LOG(LogInteractor, Error, TEXT("Failed to Cast to Interaction Hold On Timer Completed"));
 		return;
 	}
 
@@ -290,7 +301,10 @@ void UInteractorComponent::OnInteractorTimerCompleted()
 
 void UInteractorComponent::OnRep_bInteracting()
 {
-
+	if (OnInteractingChanged.IsBound())
+	{
+		OnInteractingChanged.Broadcast(bInteracting);
+	}
 }
 
 void UInteractorComponent::RegisterNewInteraction(UInteractionComponent* NewInteraction)

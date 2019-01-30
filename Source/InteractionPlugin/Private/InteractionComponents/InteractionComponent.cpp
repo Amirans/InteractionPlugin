@@ -14,11 +14,6 @@ UInteractionComponent::UInteractionComponent()
 	this->SetIsReplicated(true);
 }
 
-void UInteractionComponent::BeginPlay()
-{
-	Super::BeginPlay();
-}
-
 void UInteractionComponent::SetInteractionFocusState(bool bNewFocus)
 {
 	if (OnInteractionFocusChanged.IsBound())

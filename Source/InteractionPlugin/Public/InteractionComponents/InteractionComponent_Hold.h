@@ -17,6 +17,11 @@ public:
 	UInteractionComponent_Hold();
 
 	/**
+	 * Ends Gameplay For this Component. Allows the Interaction to begin Asynchronous Cleanup
+	 */
+	void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
+	/**
 	 * [Overridden] Starts Interaction for a Given Interactor Component
 	 *
 	 * @param InteractorComp - Interactor Component Trying to Interact

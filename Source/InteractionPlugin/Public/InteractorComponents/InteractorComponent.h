@@ -13,6 +13,8 @@ class UInteractionComponent;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnInteractorStateChanged, EInteractionResult, InteractionResult, EInteractionType, InteractionType, AActor*, InteractionActor);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInteractingChanged, bool, bIsInteracting);
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnNewInteraction, UInteractionComponent*, NewInteraction);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -25,7 +27,15 @@ public:
 	// Sets default values for this component's properties
 	UInteractorComponent();
 
+	/**
+	 * Returns the properties used for network replication
+	 */
 	virtual void GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const override;
+
+	/**
+	* Ends Gameplay For this Component. Allows the Interaction to begin Asynchronous Cleanup
+	*/
+	void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 	/**
 	 * Delegate to Notify Interaction State Changes
@@ -38,6 +48,12 @@ public:
 	 */
 	UPROPERTY(BlueprintAssignable)
 		FOnNewInteraction OnNewInteraction;
+
+	/**
+	 * Delegate to Notify Interacting Status Changes
+	 */
+	UPROPERTY(BlueprintAssignable)
+		FOnInteractingChanged OnInteractingChanged;
 
 	/**
 	 * [Config] Configuration to Determine Interaction State Over Net
@@ -94,8 +110,8 @@ public:
 		bool CanInteractWith(UInteractionComponent* InteractionComponent);
 
 	/**
-	* Returns the Component Owner Role
-	*/
+	 * Returns the Component Owner Role
+	 */
 	UFUNCTION(BlueprintPure, Category = Interactor)
 		FORCEINLINE ENetRole GetInteractorRole() const
 	{
@@ -103,8 +119,8 @@ public:
 	};
 
 	/**
-	* Returns the Component Owner Remote Role
-	*/
+	 * Returns the Component Owner Remote Role
+	 */
 	UFUNCTION(BlueprintPure, Category = Interactor)
 		FORCEINLINE ENetRole GetInteractorRemoteRole() const
 	{
@@ -140,11 +156,11 @@ public:
 	};
 
 	/**
-	* Performs an Interaction Trace and an Interaction Direction Validation
-	*
-	* @param OutInteractionComponent - Out Interaction Component If Found
-	* @returns True If Interaction Exists and has Valid Direction
-	*/
+	 * Performs an Interaction Trace and an Interaction Direction Validation
+	 *
+	 * @param OutInteractionComponent - Out Interaction Component If Found
+	 * @returns True If Interaction Exists and has Valid Direction
+	 */
 	UFUNCTION()
 		FORCEINLINE bool TryGetInteraction(UInteractionComponent*& OutInteractionComponent)
 	{
@@ -195,10 +211,10 @@ protected:
 		void StartInteraction();
 
 	/**
-	* Starts The Interactor Timer for a Given Duration
-	*
-	* @param NewInteractionDuration - Duration to Start the Interactor Duration With
-	*/
+	 * Starts The Interactor Timer for a Given Duration
+	 *
+	 * @param NewInteractionDuration - Duration to Start the Interactor Duration With
+	 */
 	UFUNCTION()
 		void ToggleInteractorTimer(bool bStartTImer = true, float NewInteractionDuration = 0.1f);
 
@@ -244,8 +260,8 @@ private:
 		bool Server_TryStartInteraction_Validate() { return true; };
 
 	/**
-	* RPC to Server To Stop the Interaction
-	*/
+	 * RPC to Server To Stop the Interaction
+	 */
 	UFUNCTION(Server, Reliable, WithValidation)
 		void Server_TryStopInteraction();
 		bool Server_TryStopInteraction_Validate() { return true; };

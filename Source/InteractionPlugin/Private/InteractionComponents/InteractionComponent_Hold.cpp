@@ -90,3 +90,19 @@ void UInteractionComponent_Hold::AddInteractor(UInteractorComponent* InteractorC
 	
 	Interactors.Add(InteractorComponent, IsValid(World) ? World->GetTimeSeconds() : 0.0f);
 }
+
+void UInteractionComponent_Hold::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+
+	if (EndPlayReason == EEndPlayReason::Destroyed ||
+		EndPlayReason == EEndPlayReason::RemovedFromWorld)
+	{
+		for (auto EachInteractor : Interactors)
+		{
+			CompleteInteraction(EInteractionResult::IR_Interrupted, EachInteractor.Key);
+		}
+
+		Interactors.Empty();
+	}
+}
