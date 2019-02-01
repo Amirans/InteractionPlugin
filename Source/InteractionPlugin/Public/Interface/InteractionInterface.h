@@ -26,9 +26,9 @@ public:
 	/**
 	 * Interface Invoked By Interactor and Interaction Component before an Interaction Process to Custom Conditions
 	 *
-	 * @param OtherInteract - Interaction or Interactor Owner Trying to Interact With
+	 * @param OtherOwner - Interaction or Interactor Owner Trying to Interact With
 	 * @return True If Interaction is Allowed else Interaction will not Start
 	 */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = InteractionInterface)
-		bool ICanInteractWith(AActor* OtherInteract);
+		bool ICanInteractWith(AActor* OtherOwner);
 };

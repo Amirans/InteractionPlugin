@@ -42,7 +42,7 @@ public:
 	 * OwnerOnly : Only the Local Owner of the Interaction Component Will Receive the Update
 	 * All		 : All Clients With this Instance of the Interaction Component Will Receive the Update
 	 */
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Interaction|Config", meta = (DisplayName = "State Net Mode"))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "InteractionComponent|Config", meta = (DisplayName = "State Net Mode"))
 		EInteractionNetMode InteractionStateNetMode;
 
 	/**
