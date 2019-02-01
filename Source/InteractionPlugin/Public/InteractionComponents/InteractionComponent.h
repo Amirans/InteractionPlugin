@@ -79,7 +79,7 @@ public:
 	/**
 	 * Owner Only Interaction State Notification
 	 *
-	 * @note Owner Only Interaction State is Handled and Recieved by Interactor
+	 * @note Owner Only Interaction State is Handled and Received by Interactor
 	 * @param InteractionResult - Result of the Interaction
 	 * @param InteractionType - Type of Interaction
 	 */
