@@ -111,6 +111,12 @@ bool UInteractorComponent::ValidateDirection(const UInteractionComponent* Intera
 	{
 		return false;
 	}
+	
+	/* Return True Early If Face Only Interaction is Not Required */
+	if (!InteractionComponent->bOnlyFaceInteraction)
+	{
+		return true;
+	}
 
 	/* Get Interactor Direction from Our Location */
 	FVector Direction = GetOwner()->GetActorLocation() - InteractionComponent->GetComponentLocation();

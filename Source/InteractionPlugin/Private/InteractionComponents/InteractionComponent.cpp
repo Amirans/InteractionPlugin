@@ -10,6 +10,7 @@ UInteractionComponent::UInteractionComponent()
 	:InteractionType(EInteractionType::IT_None)
 	,bMultipleInteraction(true)
 	,InteractionStateNetMode(EInteractionNetMode::INM_OwnerOnly)
+	,bOnlyFaceInteraction(false)
 {
 	this->SetIsReplicated(true);
 }

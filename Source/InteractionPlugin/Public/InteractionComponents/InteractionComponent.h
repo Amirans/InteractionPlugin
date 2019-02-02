@@ -46,6 +46,22 @@ public:
 		EInteractionNetMode InteractionStateNetMode;
 
 	/**
+	 * [Config] Boolean to Allow Multiple Interaction at Once
+	 * @note Does Not Apply to Instant Interaction
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "InteractionComponent|Config", meta = (DisplayName = "Allow Multiple Interaction"))
+		bool bMultipleInteraction;
+
+	/**
+	 * [Config] Boolean to Allow Interaction Only If Interactor Is Looking at the Face/Fron of the Object
+	 * @note Set to True If Interactor can Only Interact From the front of this Object
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "InteractionComponent|Config")
+		bool bOnlyFaceInteraction;
+
+
+
+	/**
 	 * Starts Interaction for a Given Interactor Component
 	 *
 	 * @param InteractorComp - Interactor Component Trying to Interact
@@ -102,13 +118,6 @@ protected:
 	 */
 	UPROPERTY(BlueprintGetter = GetInteractionType, Category = InteractionComponent)
 		EInteractionType InteractionType;
-
-	/**
-	 * [Config] Boolean to Allow Multiple Interaction at Once
-	 * @note Does Not Apply to Instant Interaction
-	 */
-	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "InteractionComponent|Config", meta=(DisplayName="Allow Multiple Interaction"))
-		bool bMultipleInteraction;
 
 	/**
 	 * Completes an Interaction With an Interactor

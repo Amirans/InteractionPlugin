@@ -48,7 +48,7 @@ Interaction Components can allow multiple interactions simultaneously. A configu
 
 ## Condition Based Interaction
 ### Class: IInteractionInterface  
-At times, **Custom Conditions** are required to be met before starting an interaction, for example, a lock system on a chest or a team only buildings and equipment. In order to handle such custom conditions both Interactor and Interaction Components will Execute an **Interface** call on their owners `ICanInteractWith(Actor* OtherOwner)` Passing the other party actor, this interface then returns a **Boolean** determining whether the interaction can be initiated or not. **This does not mean that the interface has to be always implemented on the owner even if custom conditions are not required, the components will simply ignore the interface call if the owner does not implement it.**  
+At times, **Custom Conditions** are required to be met before starting an interaction, for example, a lock system on a chest or team only buildings and equipment. In order to handle such custom conditions both Interactor and Interaction Components will Execute an **Interface** call on their owners `ICanInteractWith(Actor* OtherOwner)` Passing the other party actor, this interface then returns a **Boolean** determining whether the interaction can be initiated or not. ** However This does not mean that the interface has to be always implemented on the owner even if custom conditions are not required, the components will simply ignore the interface call if the owner does not implement it.**  
 
 **E.g:** In order to implement a team only chest, we simply add an Interaction Interface on the chest actor. Then we override the ICanInteractWith Function in the interface tab. Then inside the function, we get the team id of the OtherOwner then return true if the team id is equal to the chest team id.
 
@@ -62,7 +62,7 @@ Both Interaction and Interactor Components implement Interaction **Results** and
 - **Started [IR_Started]**: Interaction Started
 - **Successful [IR_Successful]**: Interaction Successfully Completed
 - **Failed [IR_Failed]**: Interaction Failed due to Conditions Returning False
-- **Interrupted [IR_Interrupted]**: Interaction Interrupted due to Player Pawn or Character Looking away and Going out of Reach during Interaction. Moreover, Interruptions Happen after removal of Interaction or Interactor Components during Interaction.  
+- **Interrupted [IR_Interrupted]**: Interaction Interrupted due to Player Pawn or Character Looking away and Going out of Reach during Interaction. Moreover, Interruptions Happen after removal of Interaction or Interactor Components during Interaction process.  
 
 These Interaction Results are received and broadcasted on Both Components through delegates (Blueprint Event Dispatcher).   
 
@@ -80,6 +80,9 @@ It is important to be able to notify and inform the player of an interactive obj
 **OnNewInteraction**: This Delegate is broadcasted by the **Interactor Component** when a New Interactive object comes into the focus or leaves the reach of the player.
 
 **OnInteractionFocusChanged**: Delegate Implemented by the **Interaction Component**. Broadcasted whenever the interaction object comes into the focus of a player.
+
+## Interaction Direction
+In Some Cases, the direction of the interaction is important. Some Interactive Objects may require the Players to look at the face of the object in order to be able to interact. But for other interactive objects this may not be a requirement. This behavior can be configured on each Interaction Component Config setting by changing the Boolean variable named **OnlyFaceInteraction**. Setting this variable to **true** will require the player to look at the face of the object.
 
 ## Author
 Contact me on [Twitter](https://twitter.com/amiransari09).
