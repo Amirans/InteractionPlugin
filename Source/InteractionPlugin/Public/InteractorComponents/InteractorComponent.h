@@ -121,7 +121,7 @@ public:
 	UFUNCTION(BlueprintPure, Category = Interactor)
 		FORCEINLINE ENetRole GetInteractorRole() const
 	{
-		return IsValid(GetOwner()) ? GetOwner()->GetLocalRole() : ENetRole::ROLE_None;
+		return IsValid(GetOwner()) ? GetOwner()->Role : ENetRole::ROLE_None;
 	};
 
 	/**
