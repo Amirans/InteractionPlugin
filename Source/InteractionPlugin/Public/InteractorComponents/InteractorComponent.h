@@ -11,7 +11,7 @@ DECLARE_LOG_CATEGORY_EXTERN(LogInteractor, Log, All);
 
 class UInteractionComponent;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnInteractorStateChanged, EInteractionResult, InteractionResult, EInteractionType, InteractionType, AActor*, InteractionActor);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnInteractorStateChanged, EInteractionResult, InteractionResult, EInteractionType, InteractionType, float , InteractionDuration, AActor*, InteractionActor);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInteractingChanged, bool, bIsInteracting);
 

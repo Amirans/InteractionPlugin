@@ -156,6 +156,10 @@ void UInteractorComponent::TryStartInteraction()
 	{
 		StartInteraction();
 	}
+	else
+	{
+		NotifyInteraction(EInteractionResult::IR_Failed, InteractionCandidate->GetInteractionType());
+	}
 }
 
 void UInteractorComponent::Server_TryStartInteraction_Implementation()
@@ -431,9 +435,22 @@ void UInteractorComponent::Client_NotifyInteraction_Implementation(EInteractionR
 {
 	if (OnInteractorStateChanged.IsBound())
 	{
+
+		/* Try to Get Interaction Duration If Candidate is a Hold Interaction */
+		float NewInteractionDuration = 0.0f;
+
+		UInteractionComponent_Hold* InteractionComp_Hold = Cast<UInteractionComponent_Hold>(InteractionCandidate);
+
+		if (IsValid(InteractionComp_Hold))
+		{
+			NewInteractionDuration = InteractionComp_Hold->GetInteractionDuration();
+		}
+
+		/* Broadcast the State */
 		OnInteractorStateChanged.Broadcast(
 			NewInteractionResult,
 			NewInteractionType,
+			NewInteractionDuration,
 			IsValid(InteractionCandidate) ? InteractionCandidate->GetOwner() : nullptr
 		);
 	}
@@ -450,9 +467,22 @@ void UInteractorComponent::Multi_NotifyInteraction_Implementation(EInteractionRe
 {
 	if (OnInteractorStateChanged.IsBound())
 	{
+
+		/* Try to Get Interaction Duration If Candidate is a Hold Interaction */
+		float NewInteractionDuration = 0.0f;
+
+		UInteractionComponent_Hold* InteractionComp_Hold = Cast<UInteractionComponent_Hold>(InteractionCandidate);
+
+		if (IsValid(InteractionComp_Hold))
+		{
+			NewInteractionDuration = InteractionComp_Hold->GetInteractionDuration();
+		}
+
+		/* Broadcast the State */
 		OnInteractorStateChanged.Broadcast(
 			NewInteractionResult,
 			NewInteractionType,
+			NewInteractionDuration,
 			IsValid(InteractionCandidate) ? InteractionCandidate->GetOwner() : nullptr
 		);
 	}
