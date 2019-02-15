@@ -23,7 +23,7 @@ The Interaction System is designed and developed based on a Component to Compone
 	- Interaction Process [DONE]
 	- Notifications for Animations [DONE]
 4. Documentation [DONE]
-	- Showcase Level
+	- Showcase Level [DONE]
 
 ## Getting up and Running
 1. Add an **Interactor Component** to the Character or Player Pawn
@@ -83,6 +83,9 @@ It is important to be able to notify and inform the player of an interactive obj
 
 ## Interaction Direction
 In Some Cases, the direction of the interaction is important. Some Interactive Objects may require the Players to look at the face of the object in order to be able to interact. But for other interactive objects this may not be a requirement. This behavior can be configured on each Interaction Component Config setting by changing the Boolean variable named **OnlyFaceInteraction**. Setting this variable to **true** will require the player to look at the face of the object.
+
+## Showcase
+You can Download the Showcase Level [here](https://drive.google.com/drive/u/0/folders/1WHRh8U5XVVyyZ5DnwHTg_XufNqroyj-w).
 
 ## Author
 Contact me on [Twitter](https://twitter.com/amiransari09).
