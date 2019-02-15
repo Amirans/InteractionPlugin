@@ -15,12 +15,15 @@ UInteractionComponent::UInteractionComponent()
 	this->SetIsReplicated(true);
 }
 
-void UInteractionComponent::SetInteractionFocusState(bool bNewFocus)
+void UInteractionComponent::SetInteractionFocusState(bool bNewFocus, UInteractorComponent* NewInteractorComponent /* = nullptr */)
 {
 	if (OnInteractionFocusChanged.IsBound())
 	{
 		OnInteractionFocusChanged.Broadcast(bNewFocus);
 	}
+	
+	/* Set Focusing Interactor */
+	FocusingInteractor = NewInteractorComponent;
 }
 
 bool UInteractionComponent::StartInteraction(UInteractorComponent* InteractorComp)
@@ -105,5 +108,16 @@ void UInteractionComponent::Multi_NotifyInteraction_Implementation(EInteractionR
 		OnInteractionStateChanged.Broadcast(
 			NewInteractionResult,
 			IsValid(NewInteractionComponent) ? NewInteractionComponent->GetOwner() : nullptr);
+	}
+}
+
+
+void UInteractionComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+
+	if (IsValid(FocusingInteractor))
+	{
+		FocusingInteractor->LocalEndInteractionFocus(this);
 	}
 }

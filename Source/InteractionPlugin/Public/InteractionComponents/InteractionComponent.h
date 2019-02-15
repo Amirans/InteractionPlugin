@@ -25,6 +25,11 @@ public:
 	// Sets default values for this component's properties
 	UInteractionComponent();
 
+	/**
+	 * Ends Gameplay For this Component. Allows the Interaction to begin Asynchronous Cleanup
+	 */
+	void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
 	/* Delegate to Notify Interactor Focus Changed */
 	UPROPERTY(BlueprintAssignable)
 		FOnInteractionFocusChanged OnInteractionFocusChanged;
@@ -90,7 +95,7 @@ public:
 	 * Invoked By Interactor to Notify Interaction is Under Focus
 	 */
 	UFUNCTION()
-		void SetInteractionFocusState(bool bNewFocus);
+		void SetInteractionFocusState(bool bNewFocus, UInteractorComponent* NewInteractorComponent = nullptr);
 
 	/**
 	 * Owner Only Interaction State Notification
@@ -118,6 +123,12 @@ protected:
 	 */
 	UPROPERTY(BlueprintGetter = GetInteractionType, Category = InteractionComponent)
 		EInteractionType InteractionType;
+
+	/**
+	 * Interactor Component Reference Currently Focusing on this Interaction
+	 */
+	UPROPERTY()
+		UInteractorComponent* FocusingInteractor;
 
 	/**
 	 * Completes an Interaction With an Interactor

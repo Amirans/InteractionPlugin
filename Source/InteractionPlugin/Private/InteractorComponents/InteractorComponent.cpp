@@ -233,7 +233,7 @@ void UInteractorComponent::EndInteraction(EInteractionResult InteractionResult, 
 	/* Get Interaction Type */
 	const EInteractionType EndingInteractionType = IsValid(InteractionComponent) ? InteractionComponent->GetInteractionType() : EInteractionType::IT_None;
 
-	/* Clear Interaction Timer In Case Of Intruption */
+	/* Clear Interaction Timer In Case Of Interruption */
 	if(EndingInteractionType == EInteractionType::IT_Hold)
 	{
 		ToggleInteractorTimer(false);
@@ -244,6 +244,14 @@ void UInteractorComponent::EndInteraction(EInteractionResult InteractionResult, 
 		InteractionResult, 
 		EndingInteractionType
 	);
+}
+
+void UInteractorComponent::LocalEndInteractionFocus(UInteractionComponent* InteractionComponent)
+{
+	if (InteractionComponent == InteractionCandidate && OnNewInteraction.IsBound())
+	{
+		OnNewInteraction.Broadcast(nullptr);
+	}
 }
 
 bool UInteractorComponent::CanInteractWith(UInteractionComponent* InteractionComponent)
@@ -332,7 +340,7 @@ void UInteractorComponent::RegisterNewInteraction(UInteractionComponent* NewInte
 	/* Local Interactor */
 	if (IsLocalInteractor())
 	{
-		NewInteraction->SetInteractionFocusState(true);
+		NewInteraction->SetInteractionFocusState(true,this);
 
 		if (OnNewInteraction.IsBound())
 		{

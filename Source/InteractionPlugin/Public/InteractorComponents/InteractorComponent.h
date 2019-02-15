@@ -104,6 +104,12 @@ public:
 		void EndInteraction(EInteractionResult InteractionResult,UInteractionComponent* InteractionComponent);
 
 	/**
+	 * Ends Interaction Focus, Usually Invoked by the Interaction when Destroying
+	 */
+	UFUNCTION()
+		void LocalEndInteractionFocus(UInteractionComponent* InteractionComponent);
+
+	/**
 	 * Validates Condition and Returns Whether Interaction is Allowed 
 	 */
 	UFUNCTION(BlueprintCallable, Category = Interactor)
